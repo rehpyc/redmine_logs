@@ -1,0 +1,57 @@
+-#
+  # Logs plugin for Redmine
+  # Copyright (C) 2010-2011  Haruyuki Iida
+  #
+  # This program is free software; you can redistribute it and/or
+  # modify it under the terms of the GNU General Public License
+  # as published by the Free Software Foundation; either version 2
+  # of the License, or (at your option) any later version.
+  #
+  # This program is distributed in the hope that it will be useful,
+  # but WITHOUT ANY WARRANTY; without even the implied warranty of
+  # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  # GNU General Public License for more details.
+  #
+  # You should have received a copy of the GNU General Public License
+  # along with this program; if not, write to the Free Software
+  # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+- if @error
+  %div.flash.error
+    = @error
+%h2
+  = l(:logs)
+
+%table.list
+  %thead
+    %th
+      = h l(:field_filename)
+    %th
+      = h l(:field_filesize)
+    %th
+      = h l(:field_updated_on)
+    %th
+  %tbody
+    - @logs.each do |log|
+      %tr{ class: "#{ cycle('odd', 'even') }" }
+        %td{ style: "text-align: left" }
+          %span.icon.icon-file
+            - form_id = "show_id_#{ rand(10000) }"
+            = form_tag({ controller: "logs", action: "show" }, { id: form_id }) do
+              = hidden_field_tag :path, log.path
+              = link_to_function h(log.path),  "$('##{ form_id }').submit()"
+        %td{ style: "text-align: right" }
+          = log.size_str
+        %td{ style: "text-align: center" }
+          = format_time(log.timestamp)
+        %td
+          %span.icon.icon-save
+            - form_id = "download_id_#{rand(10000)}"
+            = form_tag({ action: "download" }, { id: form_id }) do
+              = hidden_field_tag :path, log.path
+              = link_to_function l(:button_download),  "$('##{ form_id }').submit()"
+          %span.icon.icon-del
+            - form_id = "delete_id_#{ rand(10000) }"
+            = form_tag({ action: "delete" }, { id: form_id }) do
+              = hidden_field_tag :path, log.path
+              = link_to_function l(:button_delete),  "if(confirm('#{ escape_javascript(l(:text_are_you_sure)) }')){$('##{ form_id }').submit();}"
